@@ -10,7 +10,7 @@ import (
 // runs a loop to keep the client alive until it is no longer active.
 func main() {
   // Request a server with the specified details.
-  server, err := ircutil.CreateServer("irc.rizon.net", 6667, true, "");
+  server, err := ircutil.CreateServer("irc.rizon.net", 6697, true, "");
   if err != nil {
     fmt.Println(err.Error())
     return
