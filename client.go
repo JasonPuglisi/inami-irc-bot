@@ -6,30 +6,30 @@ import (
   "github.com/jasonpuglisi/ircutil"
 )
 
-// main creates a server and user, and establishes a connected. It starts a
-// loop that runs until the client is stopped.
+// main requests a server and user which it uses establish a connection. It
+// runs a loop to keep the client alive until it is no longer active.
 func main() {
-  // Create a server for a connection
+  // Request a server with the specified details.
   server, err := ircutil.CreateServer("irc.rizon.net", 6667, true, "");
   if err != nil {
     fmt.Println(err.Error())
     return
   }
 
-  // Create a user for a connection
+  // Request a user with the specified details.
   user, err := ircutil.CreateUser("Inami", "inami", "Mahiru Inami", 8)
   if err != nil {
     fmt.Println(err.Error())
     return
   }
 
-  // Establish a connection using a user and server
+  // Establish a connection and get a client using user and server details.
   client, err := ircutil.EstablishConnection(server, user);
   if err != nil {
     fmt.Println(err.Error())
     return
   }
 
-  // Loop until client is stopped
+  // Loop until client is no longer active.
   for client.Active {}
 }
