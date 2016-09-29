@@ -3,6 +3,7 @@ package main
 import (
   "flag"
   "fmt"
+  "os"
 
   "github.com/jasonpuglisi/ircutil"
 )
@@ -14,21 +15,30 @@ import (
 // runs a loop to keep the client alive until it is no longer active.
 func main() {
   // Set config and debug flags, then parse command line arguments.
-  //configPtr := flag.String("config", "config.json", "configuration file")
+  configPtr := flag.String("config", "config.json", "configuration file")
   debugPtr := flag.Bool("debug", false, "debugging mode")
   flag.Parse()
+
+  // Attempt to open configuration file.
+  _, err := os.Open(*configPtr)
+  if err != nil {
+    fmt.Printf("Unable to open configuration file \"%s\". Make sure the " +
+      "file exists.\n[%s]\n", *configPtr, err)
+    return
+  }
+
 
   // Request a server with the specified details.
   server, err := ircutil.CreateServer("irc.rizon.net", 6697, true, "")
   if err != nil {
-    fmt.Println(err.Error())
+    fmt.Println(err)
     return
   }
 
   // Request a user with the specified details.
-  user, err := ircutil.CreateUser("Inami", "inami", "Mahiru Inami", 8)
+  user, err := ircutil.CreateUser("Inami", "inami", "Mahiru Inami", "i")
   if err != nil {
-    fmt.Println(err.Error())
+    fmt.Println(err)
     return
   }
 
@@ -36,15 +46,16 @@ func main() {
   // well as an initialization function and debugging setting.
   client, err := ircutil.EstablishConnection(server, user, Init, *debugPtr)
   if err != nil {
-    fmt.Println(err.Error())
+    fmt.Println(err)
     return
   }
 
   // Loop until client is no longer active.
-  for client.Active {}
+  for client.Active {
+  }
 }
 
 // Init is executed after the client it connected and registered to the server.
 func Init(client *ircutil.Client) {
-  //ircutil.Join(client, "#snowie", "")
+  ircutil.SendJoin(client, "#inami", "")
 }
