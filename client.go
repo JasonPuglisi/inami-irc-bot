@@ -27,6 +27,8 @@ func main() {
     return
   }
 
+  // Declare slice to store clients.
+  var clients []*ircutil.Client
 
   // Request a server with the specified details.
   server, err := ircutil.CreateServer("irc.rizon.net", 6697, true, "")
@@ -50,8 +52,21 @@ func main() {
     return
   }
 
-  // Loop until client is no longer active.
-  for client.Active {
+  // Add client to client slice.
+  clients = append(clients, client)
+
+  // Loop until all clients are no longer active.
+  for {
+    active := false
+    for _, c := range clients {
+      if c.Active {
+        active = true
+      }
+    }
+
+    if !active {
+      return
+    }
   }
 }
 
