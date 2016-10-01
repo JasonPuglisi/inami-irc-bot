@@ -38,7 +38,7 @@ func main() {
   }
 
   // Request a user with the specified details.
-  user, err := ircutil.CreateUser("Inami", "inami", "Mahiru Inami", "i")
+  user, err := ircutil.CreateUser("Inami", "inami", "Mahiru Inami")
   if err != nil {
     fmt.Println(err)
     return
