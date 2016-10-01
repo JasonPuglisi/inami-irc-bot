@@ -56,17 +56,8 @@ func main() {
   clients = append(clients, client)
 
   // Loop until all clients are no longer active.
-  for {
-    active := false
-    for _, c := range clients {
-      if c.Active {
-        active = true
-      }
-    }
-
-    if !active {
-      return
-    }
+  for _, c := range clients {
+    <-c.Done
   }
 }
 
