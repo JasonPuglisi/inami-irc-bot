@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
 
 	"github.com/jasonpuglisi/ircutil"
 )
@@ -19,11 +18,15 @@ func main() {
 	debugPtr := flag.Bool("debug", false, "debugging mode")
 	flag.Parse()
 
-	// Attempt to open configuration file.
-	_, err := os.Open(*configPtr)
+	// Get configuration from filename.
+	config, err := getConfig(*configPtr)
 	if err != nil {
-		fmt.Printf("Unable to open configuration file \"%s\". Make sure the "+
-			"file exists.\n[%s]\n", *configPtr, err)
+		fmt.Printf("Error opening %s, make sure the file exists.\n%s\n",
+			*configPtr, err)
+		return
+	}
+	if config != nil {
+		fmt.Printf("%+v\n\n", config)
 		return
 	}
 
