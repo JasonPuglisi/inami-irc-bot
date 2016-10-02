@@ -3,12 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/jasonpuglisi/ircutil"
 )
-
-// TODO: All the static values in here will be replaced with config-loaded
-//       values. This includes server/user info and commands.
 
 // main requests a server and user which it uses establish a connection. It
 // runs a loop to keep the client alive until it is no longer active.
@@ -25,38 +24,54 @@ func main() {
 			*configPtr, err)
 		return
 	}
-	if config != nil {
-		fmt.Printf("%+v\n\n", config)
-		return
-	}
 
 	// Declare slice to store clients.
 	var clients []*ircutil.Client
 
-	// Request a server with the specified details.
-	server, err := ircutil.CreateServer("irc.rizon.net", 6697, true, "")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	// Loop through all clients in config to establish their connections.
+	for i := range config.Clients {
+		client := &config.Clients[i]
 
-	// Request a user with the specified details.
-	user, err := ircutil.CreateUser("Inami", "inami", "Mahiru Inami")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+		// Get server from config and reference it in client.
+		server, err := getServer(config, client.ServerID)
+		if err != nil {
+			fmt.Printf("Error getting server %s, make sure it exists in %s.\n%s\n",
+				client.ServerID, *configPtr, err)
+			return
+		}
+		client.Server = server
 
-	// Establish a connection and get a client using user and server details as
-	// well as an initialization function and debugging setting.
-	client, err := ircutil.EstablishConnection(server, user, Init, *debugPtr)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+		// Get user from config and reference it in client.
+		user, err := getUser(config, client.UserID)
+		if err != nil {
+			fmt.Printf("Error getting user %s, make sure it exists in %s.\n%s\n",
+				client.UserID, *configPtr, err)
+			return
+		}
+		client.User = user
 
-	// Add client to client slice.
-	clients = append(clients, client)
+		// Set debugging mode, ready function, and done channel for client.
+		client.Debug = *debugPtr
+		client.Ready = Init
+		client.Done = make(chan bool, 1)
+
+		// Establish a connection with the created client.
+		err = ircutil.EstablishConnection(client)
+		if err != nil {
+			fmt.Printf("Error establishing connection with %s/%s, make sure its "+
+				"settings are valid in %s.\n%s\n", client.ServerID, client.UserID,
+				*configPtr, err)
+			return
+		}
+
+		// Add client to client slice.
+		clients = append(clients, client)
+
+		// Sleep for a second so we don't hit the same server too fast.
+		if i < len(config.Clients)-1 {
+			time.Sleep(time.Second)
+		}
+	}
 
 	// Loop until all clients are no longer active.
 	for _, c := range clients {
@@ -66,5 +81,18 @@ func main() {
 
 // Init is executed after the client it connected and registered to the server.
 func Init(client *ircutil.Client) {
-	ircutil.SendJoin(client, "#inami", "")
+	// Join all of a client's channels.
+	for i := range client.Channels {
+		c := strings.Split(client.Channels[i], " ")
+		pass := ""
+		if len(c) > 1 {
+			pass = c[1]
+		}
+		ircutil.SendJoin(client, c[0], pass)
+
+		// Sleep for half a second so we don't join channels too fast.
+		if i < len(client.Channels)-1 {
+			time.Sleep(time.Millisecond * 500)
+		}
+	}
 }
