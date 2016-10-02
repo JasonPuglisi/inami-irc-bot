@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math/rand"
 	"strings"
 	"time"
 
@@ -24,6 +25,9 @@ func main() {
 			*configPtr, err)
 		return
 	}
+
+	// Seed random number generator.
+	rand.Seed(time.Now().UnixNano())
 
 	// Declare slice to store clients.
 	var clients []*ircutil.Client
@@ -54,6 +58,7 @@ func main() {
 		client.Debug = *debugPtr
 		client.Ready = Init
 		client.Done = make(chan bool, 1)
+		client.Nick = client.User.Nick
 
 		// Establish a connection with the created client.
 		err = ircutil.EstablishConnection(client)
@@ -81,6 +86,17 @@ func main() {
 
 // Init is executed after the client it connected and registered to the server.
 func Init(client *ircutil.Client) {
+	// Authenticate with Nickserv if a password is specified.
+	if client.Nick == client.User.Nick && len(client.Authentication.Nickserv) >
+		0 {
+		ircutil.SendNickservPass(client, client.Authentication.Nickserv)
+	}
+
+	// Set user modes if specified.
+	if len(client.Modes) > 0 {
+		ircutil.SendModeUser(client, client.Modes)
+	}
+
 	// Join all of a client's channels.
 	for i := range client.Channels {
 		c := strings.Split(client.Channels[i], " ")
