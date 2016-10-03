@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jasonpuglisi/inami/utilcmd"
 	"github.com/jasonpuglisi/ircutil"
 )
 
@@ -28,6 +29,11 @@ func main() {
 
 	// Seed random number generator.
 	rand.Seed(time.Now().UnixNano())
+
+	// Initialize and import commands.
+	commands := config.Commands
+	cmdMap := ircutil.InitCommands()
+	utilcmd.Init(cmdMap)
 
 	// Declare slice to store clients.
 	var clients []*ircutil.Client
@@ -55,6 +61,8 @@ func main() {
 		client.User = user
 
 		// Set debugging mode, ready function, and done channel for client.
+		client.Commands = commands
+		client.CmdMap = cmdMap
 		client.Debug = *debugPtr
 		client.Ready = Init
 		client.Done = make(chan bool, 1)

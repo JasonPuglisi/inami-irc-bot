@@ -91,6 +91,7 @@ func setConfigDefaults(config *Config) {
 		s := &config.Settings
 		cs.CaseSensitive = s.CaseSensitive
 		cs.Symbol = s.Symbol
+		cs.Scope = make([]string, 2)
 		copy(cs.Scope, s.Scope)
 		cs.Admin = s.Admin
 	}
