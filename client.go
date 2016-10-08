@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jasonpuglisi/inami/animecmd"
 	"github.com/jasonpuglisi/inami/funcmd"
 	"github.com/jasonpuglisi/inami/utilcmd"
 	"github.com/jasonpuglisi/ircutil"
@@ -36,6 +37,7 @@ func main() {
 	cmdMap := ircutil.InitCommands()
 	utilcmd.Init(cmdMap)
 	funcmd.Init(cmdMap)
+	animecmd.Init(cmdMap)
 
 	// Declare slice to store clients.
 	var clients []*ircutil.Client
