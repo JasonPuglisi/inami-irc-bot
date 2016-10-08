@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jasonpuglisi/inami/funcmd"
 	"github.com/jasonpuglisi/inami/utilcmd"
 	"github.com/jasonpuglisi/ircutil"
 )
@@ -34,6 +35,7 @@ func main() {
 	commands := config.Commands
 	cmdMap := ircutil.InitCommands()
 	utilcmd.Init(cmdMap)
+	funcmd.Init(cmdMap)
 
 	// Declare slice to store clients.
 	var clients []*ircutil.Client
