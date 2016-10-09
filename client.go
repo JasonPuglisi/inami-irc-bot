@@ -18,14 +18,22 @@ import (
 func main() {
 	// Set config and debug flags, then parse command line arguments.
 	configPtr := flag.String("config", "config.json", "configuration file")
+	dataPtr := flag.String("data", "data.json", "data file")
 	debugPtr := flag.Bool("debug", false, "debugging mode")
 	flag.Parse()
 
 	// Get configuration from filename.
 	config, err := getConfig(*configPtr)
 	if err != nil {
-		fmt.Printf("Error opening %s, make sure the file exists.\n%s\n",
-			*configPtr, err)
+		fmt.Printf("Error opening %s, %s.\n%s\n",
+			*configPtr, "make sure the file exists and is correctly formatted", err)
+		return
+	}
+
+	data, err := getData(*dataPtr)
+	if err != nil {
+		fmt.Printf("Error opening %s, %s.\n%s\n",
+			*configPtr, "make sure the file exists and is correctly formatted", err)
 		return
 	}
 
@@ -64,7 +72,9 @@ func main() {
 		}
 		client.User = user
 
-		// Set debugging mode, ready function, and done channel for client.
+		// Set client values.
+		client.Data = data
+		client.DataFile = dataPtr
 		client.Commands = commands
 		client.CmdMap = cmdMap
 		client.Debug = *debugPtr

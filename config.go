@@ -41,9 +41,15 @@ func getConfig(path string) (*Config, error) {
 	// Parse file data into configuration, update dependent default values, and
 	// parse it once more. We do this so that any booleans specifically set to
 	// false in the config are not overrode by default values.
-	json.Unmarshal(raw, config)
+	err = json.Unmarshal(raw, config)
+	if err != nil {
+		return nil, err
+	}
 	setConfigDefaults(config)
-	json.Unmarshal(raw, config)
+	err = json.Unmarshal(raw, config)
+	if err != nil {
+		return nil, err
+	}
 
 	// Return parsed and updated configuration.
 	return config, nil
