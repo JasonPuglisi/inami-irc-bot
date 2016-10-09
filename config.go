@@ -77,10 +77,10 @@ func setConfigDefaults(config *Config) {
 	// Update defaults for each user.
 	for i := range config.Users {
 		u := &config.Users[i]
-		if u.User == "" {
+		if len(u.User) < 1 {
 			u.User = strings.ToLower(u.Nick)
 		}
-		if u.Real == "" {
+		if len(u.Real) < 1 {
 			u.Real = u.Nick
 		}
 	}

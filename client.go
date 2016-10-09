@@ -75,9 +75,9 @@ func main() {
 		// Establish a connection with the created client.
 		err = ircutil.EstablishConnection(client)
 		if err != nil {
-			fmt.Printf("Error establishing connection with %s/%s, make sure its "+
-				"settings are valid in %s.\n%s\n", client.ServerID, client.UserID,
-				*configPtr, err)
+			fmt.Printf("%s %s/%s, %s %s.\n%s\n",
+				"Error establishing connection with", client.ServerID, client.UserID,
+				"make sure its settings are valid in", *configPtr, err)
 			return
 		}
 

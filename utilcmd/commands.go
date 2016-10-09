@@ -1,6 +1,7 @@
 package utilcmd
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/jasonpuglisi/ircutil"
@@ -60,6 +61,6 @@ func Notify(client *ircutil.Client, command *ircutil.Command,
 // Do performs an action at a target. Function key: inami/utilcmd.Do
 func Do(client *ircutil.Client, command *ircutil.Command,
 	message *ircutil.Message) {
-	ircutil.SendPrivmsg(client, message.Args[0], "\x01ACTION "+
-		strings.Join(message.Args[1:], " ")+"\x01")
+	ircutil.SendPrivmsg(client, message.Args[0], fmt.Sprintf("\x01ACTION %s\x01",
+		strings.Join(message.Args[1:], " ")))
 }

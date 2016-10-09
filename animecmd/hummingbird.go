@@ -2,6 +2,7 @@ package animecmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -101,8 +102,9 @@ type episode struct {
 // as a slice of animeV1 structs.
 func hummingbirdSearch(query string) ([]animeV1, error) {
 	// Escape query string and send it to Hummingbird API v1.
-	resp, err := http.Get("http://hummingbird.me/api/v1/search/anime?query=" +
-		url.QueryEscape(query))
+	resp, err := http.Get(
+		fmt.Sprintf("http://hummingbird.me/api/v1/search/anime?query=%s",
+			url.QueryEscape(query)))
 	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
@@ -130,8 +132,9 @@ func hummingbirdShow(slug string) (*anime, error) {
 	// Create new http request client, escape slug, set client ID header, and
 	// send it to Hummingbird API.
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://hummingbird.me/api/v2/anime/"+
-		url.QueryEscape(slug), nil)
+	req, err := http.NewRequest("GET",
+		fmt.Sprintf("https://hummingbird.me/api/v2/anime/%s",
+			url.QueryEscape(slug)), nil)
 	if err != nil {
 		return nil, err
 	}

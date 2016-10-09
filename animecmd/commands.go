@@ -2,7 +2,6 @@ package animecmd
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -24,7 +23,7 @@ func Search(client *ircutil.Client, command *ircutil.Command,
 	// Search Hummingbird for shows matching query.
 	shows, err := hummingbirdSearch(strings.Join(message.Args, " "))
 	if err != nil {
-		log.Println(err)
+		ircutil.Log(client, err.Error())
 		ircutil.SendResponse(client, message.Source, message.Target,
 			"Error fetching shows, try again later")
 		return
@@ -51,10 +50,9 @@ func Search(client *ircutil.Client, command *ircutil.Command,
 func Watch(client *ircutil.Client, command *ircutil.Command,
 	message *ircutil.Message) {
 	// Send response if episode number is not a number.
-	numStr := message.Args[1]
-	num, err := strconv.Atoi(numStr)
+	num, err := strconv.Atoi(message.Args[1])
 	if err != nil {
-		log.Println(err)
+		ircutil.Log(client, err.Error())
 		ircutil.SendResponse(client, message.Source, message.Target,
 			"Invalid episode number")
 		return
@@ -63,16 +61,17 @@ func Watch(client *ircutil.Client, command *ircutil.Command,
 	// Get show data from Hummingbird.
 	show, err := hummingbirdShow(message.Args[0])
 	if err != nil {
-		log.Println(err)
+		ircutil.Log(client, err.Error())
 		ircutil.SendResponse(client, message.Source, message.Target,
 			"Error fetching show, try again later")
 		return
 	}
 
 	// Send response if show not found.
-	if show.Anime.Slug == "" {
-		ircutil.SendResponse(client, message.Source, message.Target, "Show not "+
-			"found, make sure you're using the name after /anime/ in the URL")
+	if len(show.Anime.Slug) < 1 {
+		ircutil.SendResponse(client, message.Source, message.Target,
+			fmt.Sprintf("Show not found, %s",
+				"make sure you're using the name after /anime/ in the URL"))
 		return
 	}
 
@@ -88,8 +87,8 @@ func Watch(client *ircutil.Client, command *ircutil.Command,
 
 	// Clear episode title if it doesn't exist.
 	episodeTitle := ""
-	if episode != nil && episode.Title != "Episode "+numStr {
-		episodeTitle = " \"" + episode.Title + "\""
+	if episode != nil && episode.Title != fmt.Sprintf("Episode %d", num) {
+		episodeTitle = fmt.Sprintf(" \"%s\"", episode.Title)
 	}
 
 	// Start countdown and sleep before sending episode title.
@@ -98,8 +97,8 @@ func Watch(client *ircutil.Client, command *ircutil.Command,
 
 	// Send response with episode information.
 	ircutil.SendResponse(client, message.Source, message.Target,
-		fmt.Sprintf("You're watching %s Episode %s%s", anime.Titles.Canonical,
-			numStr, episodeTitle))
+		fmt.Sprintf("You're watching %s Episode %d%s", anime.Titles.Canonical,
+			num, episodeTitle))
 }
 
 // Countdown starts a countdown to coordinate group watching.
