@@ -1,4 +1,4 @@
-package main
+package configutil
 
 import (
 	"encoding/json"
@@ -8,9 +8,9 @@ import (
 	"github.com/jasonpuglisi/ircutil"
 )
 
-// getData opens a data file at the given path and parses it into a data
+// GetData opens a data file at the given path and parses it into a data
 // struct.
-func getData(path string) (ircutil.Data, error) {
+func GetData(path string) (ircutil.Data, error) {
 	// Attempt to open data file.
 	raw, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -51,7 +51,8 @@ func GetValue(client *ircutil.Client, keys []string) (string, error) {
 	}
 
 	// Set individual key parameters.
-	scope, owner, group, key := keys[0], keys[1], keys[2], keys[3]
+	clientPrefix, scope, owner, group, key := ircutil.GetClientPrefix(client),
+		keys[0], keys[1], keys[2], keys[3]
 
 	// Error if scope is invalid.
 	if scope != "user" && scope != "channel" && scope != "client" {
@@ -60,7 +61,7 @@ func GetValue(client *ircutil.Client, keys []string) (string, error) {
 
 	// Return value.
 	buildMap(client, keys)
-	return client.Data[scope][owner][group][key], nil
+	return client.Data[clientPrefix][scope][owner][group][key], nil
 }
 
 // SetValue sets a value in persistent data using a keys array in the same
@@ -72,7 +73,8 @@ func SetValue(client *ircutil.Client, keys []string, value string) error {
 	}
 
 	// Set individual key parameters.
-	scope, owner, group, key := keys[0], keys[1], keys[2], keys[3]
+	clientPrefix, scope, owner, group, key := ircutil.GetClientPrefix(client),
+		keys[0], keys[1], keys[2], keys[3]
 
 	// Error if scope is invalid.
 	if scope != "user" && scope != "channel" && scope != "client" {
@@ -81,7 +83,7 @@ func SetValue(client *ircutil.Client, keys []string, value string) error {
 
 	// Set value and write data file.
 	buildMap(client, keys)
-	client.Data[scope][owner][group][key] = value
+	client.Data[clientPrefix][scope][owner][group][key] = value
 	return writeData(client)
 }
 
@@ -90,16 +92,29 @@ func SetValue(client *ircutil.Client, keys []string, value string) error {
 // GetValue.
 func buildMap(client *ircutil.Client, keys []string) {
 	// Set data and key values.
-	data, scope, owner, group := client.Data, keys[0], keys[1], keys[2]
+	data, clientPrefix, scope, owner, group := client.Data,
+		ircutil.GetClientPrefix(client), keys[0], keys[1], keys[2]
 
 	// Build each level of the map.
-	if data[scope] == nil {
-		data[scope] = map[string]map[string]map[string]string{}
+	if data[clientPrefix] == nil {
+		data[clientPrefix] = map[string]map[string]map[string]map[string]string{}
 	}
-	if data[scope][owner] == nil {
-		data[scope][owner] = map[string]map[string]string{}
+	if data[clientPrefix][scope] == nil {
+		data[clientPrefix][scope] = map[string]map[string]map[string]string{}
 	}
-	if data[scope][owner][group] == nil {
-		data[scope][owner][group] = map[string]string{}
+	if data[clientPrefix][scope][owner] == nil {
+		data[clientPrefix][scope][owner] = map[string]map[string]string{}
+	}
+	if data[clientPrefix][scope][owner][group] == nil {
+		data[clientPrefix][scope][owner][group] = map[string]string{}
+	}
+}
+
+// UpdateScope sets scope and owner appropriately in a keys array.
+func UpdateScope(keys []string, source string, target string) {
+	if ircutil.IsChannel(target) {
+		keys[0], keys[1] = "channel", target
+	} else {
+		keys[0], keys[1] = "user", ircutil.GetNick(source)
 	}
 }

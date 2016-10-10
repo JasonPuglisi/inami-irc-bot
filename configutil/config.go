@@ -1,4 +1,4 @@
-package main
+package configutil
 
 import (
 	"encoding/json"
@@ -26,9 +26,9 @@ type Config struct {
 	Commands []ircutil.Command `json:"commands"`
 }
 
-// getConfig opens a config file at the given path and parses it into a config
+// GetConfig opens a config file at the given path and parses it into a config
 // struct with default values applied.
-func getConfig(path string) (*Config, error) {
+func GetConfig(path string) (*Config, error) {
 	// Attempt to open configuration file.
 	raw, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -103,9 +103,9 @@ func setConfigDefaults(config *Config) {
 	}
 }
 
-// getServer searches a config struct for a server with a specified id. It
+// GetServer searches a config struct for a server with a specified id. It
 // returns the server if found, or an error otherwise.
-func getServer(config *Config, id string) (*ircutil.Server, error) {
+func GetServer(config *Config, id string) (*ircutil.Server, error) {
 	for i := range config.Servers {
 		if id == config.Servers[i].ID {
 			return &config.Servers[i], nil
@@ -114,9 +114,9 @@ func getServer(config *Config, id string) (*ircutil.Server, error) {
 	return nil, errors.New("getting server: id not found")
 }
 
-// getUser searches a config struct for a user with a specified id. It returns
+// GetUser searches a config struct for a user with a specified id. It returns
 // the user if found, or an error otherwise.
-func getUser(config *Config, id string) (*ircutil.User, error) {
+func GetUser(config *Config, id string) (*ircutil.User, error) {
 	for i := range config.Users {
 		if id == config.Users[i].ID {
 			return &config.Users[i], nil

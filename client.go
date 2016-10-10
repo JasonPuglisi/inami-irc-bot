@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jasonpuglisi/inami/animecmd"
+	"github.com/jasonpuglisi/inami/configutil"
 	"github.com/jasonpuglisi/inami/funcmd"
 	"github.com/jasonpuglisi/inami/utilcmd"
 	"github.com/jasonpuglisi/ircutil"
@@ -23,14 +24,14 @@ func main() {
 	flag.Parse()
 
 	// Get configuration from filename.
-	config, err := getConfig(*configPtr)
+	config, err := configutil.GetConfig(*configPtr)
 	if err != nil {
 		fmt.Printf("Error opening %s, %s.\n%s\n",
 			*configPtr, "make sure the file exists and is correctly formatted", err)
 		return
 	}
 
-	data, err := getData(*dataPtr)
+	data, err := configutil.GetData(*dataPtr)
 	if err != nil {
 		fmt.Printf("Error opening %s, %s.\n%s\n",
 			*configPtr, "make sure the file exists and is correctly formatted", err)
@@ -55,7 +56,7 @@ func main() {
 		client := &config.Clients[i]
 
 		// Get server from config and reference it in client.
-		server, err := getServer(config, client.ServerID)
+		server, err := configutil.GetServer(config, client.ServerID)
 		if err != nil {
 			fmt.Printf("Error getting server %s, make sure it exists in %s.\n%s\n",
 				client.ServerID, *configPtr, err)
@@ -64,7 +65,7 @@ func main() {
 		client.Server = server
 
 		// Get user from config and reference it in client.
-		user, err := getUser(config, client.UserID)
+		user, err := configutil.GetUser(config, client.UserID)
 		if err != nil {
 			fmt.Printf("Error getting user %s, make sure it exists in %s.\n%s\n",
 				client.UserID, *configPtr, err)

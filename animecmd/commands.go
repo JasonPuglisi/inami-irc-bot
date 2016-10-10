@@ -6,14 +6,64 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jasonpuglisi/inami/configutil"
 	"github.com/jasonpuglisi/ircutil"
 )
 
 // Init adds animecmd's functions to the command map.
 func Init(cmdMap ircutil.CmdMap) {
+	ircutil.AddCommand(cmdMap, "inami/animecmd.Countdown", Countdown)
+	ircutil.AddCommand(cmdMap, "inami/animecmd.Alias", Alias)
 	ircutil.AddCommand(cmdMap, "inami/animecmd.Search", Search)
 	ircutil.AddCommand(cmdMap, "inami/animecmd.Watch", Watch)
-	ircutil.AddCommand(cmdMap, "inami/animecmd.Countdown", Countdown)
+	ircutil.AddCommand(cmdMap, "inami/animecmd.Progress", Progress)
+	ircutil.AddCommand(cmdMap, "inami/animecmd.Next", Next)
+}
+
+// Countdown starts a countdown to coordinate group watching.
+// Function key: inami.animeutil/Countdown
+func Countdown(client *ircutil.Client, command *ircutil.Command,
+	message *ircutil.Message) {
+	// Send response for countdown start.
+	ircutil.SendResponse(client, message.Source, message.Target,
+		"Starting countdown, press play when I say \"Start!\"")
+
+	// Send response with seconds remaining, or "Start!" at 0, and decrement
+	// seconds remaining.
+	ticker := time.NewTicker(time.Second)
+	i := 6
+	for range ticker.C {
+		s := strconv.Itoa(i)
+		if i == 0 {
+			s = "Start!"
+		}
+		if i < 6 {
+			ircutil.SendResponse(client, message.Source, message.Target,
+				s)
+		}
+		if i == 0 {
+			break
+		}
+		i--
+	}
+	ticker.Stop()
+}
+
+// Alias saves a show identifier as a custom alias.
+func Alias(client *ircutil.Client, command *ircutil.Command,
+	message *ircutil.Message) {
+	// Set alias and value, and update scope/owner to match command scope.
+	alias, show := message.Args[0], message.Args[1]
+	keys := []string{"", "", "anime/shows", alias}
+	configutil.UpdateScope(keys, message.Source, message.Target)
+
+	// Set alias, intialize episode progress, and send response with
+	// confirmation.
+	configutil.SetValue(client, keys, show)
+	keys[2] = "anime/progress"
+	configutil.SetValue(client, keys, "0")
+	ircutil.SendResponse(client, message.Source, message.Target,
+		fmt.Sprintf("Aliased %s to %s", alias, show))
 }
 
 // Search searches an anime database and returns relevant search results.
@@ -49,17 +99,33 @@ func Search(client *ircutil.Client, command *ircutil.Command,
 // Function key: inami/animecmd.Watch
 func Watch(client *ircutil.Client, command *ircutil.Command,
 	message *ircutil.Message) {
-	// Send response if episode number is not a number.
-	num, err := strconv.Atoi(message.Args[1])
+	// Set alias and update scope/owner to match command scope.
+	alias := message.Args[0]
+	keys := []string{"", "", "anime/shows", alias}
+	configutil.UpdateScope(keys, message.Source, message.Target)
+
+	// Get show name from alias in persistent data.
+	name, err := configutil.GetValue(client, keys)
 	if err != nil {
 		ircutil.Log(client, err.Error())
 		ircutil.SendResponse(client, message.Source, message.Target,
-			"Invalid episode number")
+			"Error getting alias, try again later")
+		return
+	}
+	if len(name) < 1 {
+		ircutil.SendResponse(client, message.Source, message.Target,
+			"Alias not found, make sure you've assigned a show to it")
 		return
 	}
 
+	// Get episode number from alias in persistent data.
+	keys[2] = "anime/progress"
+	numStr, _ := configutil.GetValue(client, keys)
+	num, _ := strconv.Atoi(numStr)
+	num++
+
 	// Get show data from Hummingbird.
-	show, err := hummingbirdShow(message.Args[0])
+	show, err := hummingbirdShow(name)
 	if err != nil {
 		ircutil.Log(client, err.Error())
 		ircutil.SendResponse(client, message.Source, message.Target,
@@ -70,8 +136,8 @@ func Watch(client *ircutil.Client, command *ircutil.Command,
 	// Send response if show not found.
 	if len(show.Anime.Slug) < 1 {
 		ircutil.SendResponse(client, message.Source, message.Target,
-			fmt.Sprintf("Show not found, %s",
-				"make sure you're using the name after /anime/ in the URL"))
+			fmt.Sprintf("Show not found, make sure your alias is using %s",
+				"the name after /anime/ in the show's URL"))
 		return
 	}
 
@@ -95,37 +161,117 @@ func Watch(client *ircutil.Client, command *ircutil.Command,
 	Countdown(client, command, message)
 	time.Sleep(time.Second * 5)
 
-	// Send response with episode information.
+	// Send response with episode information, and increment episode number.
 	ircutil.SendResponse(client, message.Source, message.Target,
 		fmt.Sprintf("You're watching %s Episode %d%s", anime.Titles.Canonical,
 			num, episodeTitle))
+	configutil.SetValue(client, keys, strconv.Itoa(num))
 }
 
-// Countdown starts a countdown to coordinate group watching.
-// Function key: inami.animeutil/Countdown
-func Countdown(client *ircutil.Client, command *ircutil.Command,
+// Progress updates a show's episode number.
+func Progress(client *ircutil.Client, command *ircutil.Command,
 	message *ircutil.Message) {
-	// Send response for countdown start.
-	ircutil.SendResponse(client, message.Source, message.Target,
-		"Starting countdown, press play when I say \"Start!\"")
-
-	// Send response with seconds remaining, or "Start!" at 0, and decrement
-	// seconds remaining.
-	ticker := time.NewTicker(time.Second)
-	i := 6
-	for range ticker.C {
-		s := strconv.Itoa(i)
-		if i == 0 {
-			s = "Start!"
-		}
-		if i < 6 {
-			ircutil.SendResponse(client, message.Source, message.Target,
-				s)
-		}
-		if i == 0 {
-			break
-		}
-		i--
+	// Parse episode number from arguments.
+	num, err := strconv.Atoi(message.Args[1])
+	if err != nil || num < 0 {
+		ircutil.SendResponse(client, message.Source, message.Target,
+			"Invalid episode number")
 	}
-	ticker.Stop()
+
+	// Set alias and update scope/owner to match command scope.
+	alias := message.Args[0]
+	keys := []string{"", "", "anime/shows", alias}
+	configutil.UpdateScope(keys, message.Source, message.Target)
+
+	// Get show name from alias in persistent data to make sure it exists.
+	name, err := configutil.GetValue(client, keys)
+	if err != nil {
+		ircutil.Log(client, err.Error())
+		ircutil.SendResponse(client, message.Source, message.Target,
+			"Error checking for alias, try again later")
+		return
+	}
+	if len(name) < 1 {
+		ircutil.SendResponse(client, message.Source, message.Target,
+			"Alias not found, make sure you've assigned a show to it")
+		return
+	}
+
+	// Set episode number in persistent data and send response with confirmation.
+	keys[2] = "anime/progress"
+	plural := "s"
+	if num == 1 {
+		plural = ""
+	}
+	configutil.SetValue(client, keys, strconv.Itoa(num))
+	ircutil.SendResponse(client, message.Source, message.Target,
+		fmt.Sprintf("Updated show progress, you've watched %d episode%s", num,
+			plural))
+}
+
+// Next returns information about the next episode for a show.
+func Next(client *ircutil.Client, command *ircutil.Command,
+	message *ircutil.Message) {
+	// Set alias and update scope/owner to match command scope.
+	alias := message.Args[0]
+	keys := []string{"", "", "anime/shows", alias}
+	configutil.UpdateScope(keys, message.Source, message.Target)
+
+	// Get show name from alias in persistent data to make sure it exists.
+	name, err := configutil.GetValue(client, keys)
+	if err != nil {
+		ircutil.Log(client, err.Error())
+		ircutil.SendResponse(client, message.Source, message.Target,
+			"Error checking for alias, try again later")
+		return
+	}
+	if len(name) < 1 {
+		ircutil.SendResponse(client, message.Source, message.Target,
+			"Alias not found, make sure you've assigned a show to it")
+		return
+	}
+
+	// Get episode number from alias in persistent data.
+	keys[2] = "anime/progress"
+	strNum, _ := configutil.GetValue(client, keys)
+	num, _ := strconv.Atoi(strNum)
+	num++
+
+	// Get show data from Hummingbird.
+	show, err := hummingbirdShow(name)
+	if err != nil {
+		ircutil.Log(client, err.Error())
+		ircutil.SendResponse(client, message.Source, message.Target,
+			"Error fetching show, try again later")
+		return
+	}
+
+	// Send response if show not found.
+	if len(show.Anime.Slug) < 1 {
+		ircutil.SendResponse(client, message.Source, message.Target,
+			fmt.Sprintf("Show not found, make sure your alias is using %s",
+				"the name after /anime/ in the show's URL"))
+		return
+	}
+
+	// Split anime and episode information, and find specific episode.
+	anime, episodes := show.Anime, show.Linked.Episodes
+	var episode *episode
+	for i := range episodes {
+		e := &episodes[i]
+		if e.Number == num {
+			episode = e
+		}
+	}
+
+	// Clear episode title if it doesn't exist.
+	episodeTitle := ""
+	if episode != nil && episode.Title != fmt.Sprintf("Episode %d", num) {
+		episodeTitle = fmt.Sprintf(" \"%s\"", episode.Title)
+	}
+
+	// Send response with next episode information.
+	ircutil.SendResponse(client, message.Source, message.Target,
+		fmt.Sprintf("Next up for %s is Episode %d%s", anime.Titles.Canonical, num,
+			episodeTitle))
 }
