@@ -27,7 +27,7 @@ type attributes struct {
 func search(query string) ([]result, error) {
 	// Escape query string and send it to Kitsu API.
 	resp, err := http.Get(
-		fmt.Sprintf("https://kitsu.io/api/edge/anime?filter[text]=%s",
+		fmt.Sprintf("https://kitsu.io/api/edge/anime?page[limit]=5&filter[text]=%s",
 			url.QueryEscape(query)))
 	defer resp.Body.Close()
 	if err != nil {
@@ -55,7 +55,7 @@ func search(query string) ([]result, error) {
 func show(id string) (result, error) {
 	// Escape query string and send it to Kitsu API for show data.
 	resp, err := http.Get(
-		fmt.Sprintf("https://kitsu.io/api/edge/anime?filter[id]=%s",
+		fmt.Sprintf("https://kitsu.io/api/edge/anime?page[limit]=1&filter[id]=%s",
 			url.QueryEscape(id)))
 	defer resp.Body.Close()
 	if err != nil {
