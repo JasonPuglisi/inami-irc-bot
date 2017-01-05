@@ -89,7 +89,6 @@ func Search(client *ircutil.Client, command *ircutil.Command,
 	// Send response with found shows and their URLs.
 	ircutil.SendResponse(client, message.Source, message.Target,
 		"Shows found:")
-	fmt.Printf("%+v\n", shows)
 	for _, s := range shows {
 		ircutil.SendResponse(client, message.Source, message.Target,
 			fmt.Sprintf("- [%s] %s", s.ID, s.Attributes.Title))

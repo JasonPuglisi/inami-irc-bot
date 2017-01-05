@@ -8,19 +8,28 @@ import (
 	"net/url"
 )
 
+// container stores data returned by the Kitsu API.
 type container struct {
 	Results []result `json:"data"`
+	Links   links    `json:"links"`
 }
 
+// result stores an entry returned by the Kitsu API.
 type result struct {
 	ID         string     `json:"id"`
 	Attributes attributes `json:"attributes"`
 }
 
+// attributes stores data in an entry returned by the Kitsu API.
 type attributes struct {
 	Slug   string `json:"slug"`
 	Title  string `json:"canonicalTitle"`
 	Number int    `json:"number"`
+}
+
+// links stores references to additional data returned by query.
+type links struct {
+	Next string `json:"next"`
 }
 
 // search queries the Kitsu API and returns search results as a slice.
@@ -78,25 +87,39 @@ func show(id string) (result, error) {
 
 // episodes queries the Kitsu API and returns episode data.
 func episodes(id string) ([]result, error) {
-	// Escape query string and send it to Kitsu API.
-	resp, err := http.Get(
-		fmt.Sprintf("https://kitsu.io/api/edge/anime/%s/episodes",
-			url.QueryEscape(id)))
-	defer resp.Body.Close()
-	if err != nil {
-		return nil, err
-	}
+	// Initiate loop to hit all pages.
+	more, link := true, fmt.Sprintf(
+		"https://kitsu.io/api/edge/anime/%s/episodes?page[limit]=20",
+		url.QueryEscape(id))
+	var results []result
+	for more {
+		// Escape query string and send it to Kitsu API.
+		resp, err := http.Get(link)
+		defer resp.Body.Close()
+		if err != nil {
+			return nil, err
+		}
 
-	// Read data body into json string.
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
+		// Read data body into json string.
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
 
-	// Parse json string into container struct.
-	data := container{}
-	json.Unmarshal(body, &data)
+		// Parse json string into container struct.
+		data := container{}
+		json.Unmarshal(body, &data)
+
+		// Update results slice.
+		results = append(results, data.Results...)
+
+		if data.Links.Next != "" {
+			link = data.Links.Next
+		} else {
+			more = false
+		}
+	}
 
 	// Return slice of episodes.
-	return data.Results, nil
+	return results, nil
 }
