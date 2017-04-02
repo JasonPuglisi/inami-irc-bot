@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jasonpuglisi/inami/animecmd"
-	"github.com/jasonpuglisi/inami/configutil"
-	"github.com/jasonpuglisi/inami/funcmd"
-	"github.com/jasonpuglisi/inami/utilcmd"
+	"github.com/jasonpuglisi/inami-irc-bot/animecmd"
+	"github.com/jasonpuglisi/inami-irc-bot/configutil"
+	"github.com/jasonpuglisi/inami-irc-bot/funcmd"
+	"github.com/jasonpuglisi/inami-irc-bot/utilcmd"
 	"github.com/jasonpuglisi/ircutil"
 )
 

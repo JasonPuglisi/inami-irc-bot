@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jasonpuglisi/inami/configutil"
+	"github.com/jasonpuglisi/inami-irc-bot/configutil"
 	"github.com/jasonpuglisi/ircutil"
 )
 
