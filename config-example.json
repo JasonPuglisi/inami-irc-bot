@@ -1,0 +1,160 @@
+{
+  "settings": {
+    "caseSensitive": true,
+    "symbol": "!",
+    "scope": ["channel"],
+    "admin": false
+  },
+  "servers": [
+    {
+      "id": "example",
+      "host": "irc.example.com",
+      "port": 6697,
+      "secure": true
+    }
+  ],
+  "users": [
+    {
+      "id": "inami",
+      "nick": "Inami",
+      "user": "inami",
+      "real": "Mahiru Inami"
+    }
+  ],
+  "clients": [
+    {
+      "serverId": "example",
+      "userId": "inami",
+      "channels": ["#testing"],
+      "modes": "+i",
+      "admins": ["MyNickname"],
+      "authentication": {
+        "serverPassword": "LetMeIn!",
+        "nickserv": "7Zh&!jOR:pwcc&}=VwtEH;U8P!k5<jM!"
+      }
+    }
+  ],
+  "commands": [
+    {
+      "triggers": ["nick", "nickname"],
+      "function": "inami/utilcmd.Nick",
+      "arguments": "<nickname>",
+      "settings": {
+        "symbol": "",
+        "scope": ["direct"],
+        "admin": true
+      }
+    },
+    {
+      "triggers": ["join", "attach"],
+      "function": "inami/utilcmd.Join",
+      "arguments": "<channel> [password]",
+      "settings": {
+        "symbol": "",
+        "scope": ["direct"],
+        "admin": true
+      }
+    },
+    {
+      "triggers": ["part", "detach"],
+      "function": "inami/utilcmd.Part",
+      "arguments": "<channel> [message]",
+      "settings": {
+        "symbol": "",
+        "scope": ["direct"],
+        "admin": true
+      }
+    },
+    {
+      "triggers": ["say", "msg", "privmsg"],
+      "function": "inami/utilcmd.Say",
+      "arguments": "<target> <message...>",
+      "settings": {
+        "symbol": "",
+        "scope": ["direct"],
+        "admin": true
+      }
+    },
+    {
+      "triggers": ["notify", "notice"],
+      "function": "inami/utilcmd.Notify",
+      "arguments": "<target> <message...>",
+      "settings": {
+        "symbol": "",
+        "scope": ["direct"],
+        "admin": true
+      }
+    },
+    {
+      "triggers": ["do", "perform", "action", "me"],
+      "function": "inami/utilcmd.Do",
+      "arguments": "<target> <action...>",
+      "settings": {
+        "symbol": "",
+        "scope": ["direct"],
+        "admin": true
+      }
+    },
+    {
+      "triggers": ["8ball", "eightball", "ask"],
+      "function": "inami/funcmd.EightBall",
+      "arguments": "[question...]"
+    },
+    {
+      "triggers": ["%NICK%"],
+      "function": "inami/funcmd.EightBall",
+      "arguments": "[question...]",
+      "settings": {
+        "caseSensitive": false,
+        "symbol": ""
+      }
+    },
+    {
+      "triggers": ["countdown"],
+      "function": "inami/animecmd.Countdown",
+      "settings": {
+        "symbol": "."
+      }
+    },
+    {
+      "triggers": ["alias"],
+      "function": "inami/animecmd.Alias",
+      "arguments": "<id> <alias>",
+      "settings": {
+        "symbol": "."
+      }
+    },
+    {
+      "triggers": ["search"],
+      "function": "inami/animecmd.Search",
+      "arguments": "<query...>",
+      "settings": {
+        "symbol": "."
+      }
+    },
+    {
+      "triggers": ["watch"],
+      "function": "inami/animecmd.Watch",
+      "arguments": "<alias>",
+      "settings": {
+        "symbol": "."
+      }
+    },
+    {
+      "triggers": ["progress"],
+      "function": "inami/animecmd.Progress",
+      "arguments": "<alias> <episode>",
+      "settings": {
+        "symbol": "."
+      }
+    },
+    {
+      "triggers": ["next"],
+      "function": "inami/animecmd.Next",
+      "arguments": "<alias>",
+      "settings": {
+        "symbol": "."
+      }
+    }
+  ]
+}
