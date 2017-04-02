@@ -47,12 +47,12 @@ This bot is built with extensibility in mind, and you can add modules for your
 own use by following the same format as the existing modules (such as those in
 [`animecmd`](animecmd) and [`funcmd`](funcmd)). Note that **in order for new
 modules to run**, you must add them to the `import` statement at the top of
-[`config.go`](config.go). New modules cannot be dynamically loaded from a
+[`client.go`](client.go). New modules cannot be dynamically loaded from a
 folder due to the nature of Go, so they must be imported statically.
 
-Keep in mind that [`config.go`](config.go) is checked into the source
+Keep in mind that [`client.go`](client.go) is checked into the source
 repository. You may need to discard your changes before pulling an updated
 version of the file, and restore them after. If you believe your module would
 benefit other users of the project, you are encouraged to submit a pull
 request, in which case your module import would remain in
-[`config.go`](config.go).
+[`client.go`](client.go).
