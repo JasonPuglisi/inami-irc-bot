@@ -8,8 +8,8 @@ Modular multi-network IRC bot with custom commands and persistent user data.
 
 ## Usage
 
-Run `go get github.com/JasonPuglisi/ircutil` to install the dependency, then
-run `go build` in the root directory to create the `inami-irc-bot` executable.
+Run `go get github.com/jasonpuglisi/inami-irc-bot` to grab the program. Then
+run `go install` in the root directory to install the executable.
 
 You must create the configuration file `config.json` before the bot will work.
 An example configuration file is provided as `config-example.json`. This file
