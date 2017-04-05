@@ -2,6 +2,9 @@
 
 Modular multi-network IRC bot with custom commands and persistent user data.
 
+Developed along with (ircutil)[https://github.com/JasonPuglisi/ircutil]. Check
+out the readme for more information.
+
 ## Dependencies
 
 - [ircutil](https://github.com/JasonPuglisi/ircutil)
