@@ -156,6 +156,7 @@ func Watch(client *ircutil.Client, command *ircutil.Command,
 		e := &episodes[i]
 		if e.Attributes.Number == num {
 			episode = e
+      break
 		}
 	}
 
@@ -277,6 +278,7 @@ func Next(client *ircutil.Client, command *ircutil.Command,
 		e := &episodes[i]
 		if e.Attributes.Number == num {
 			episode = e
+      break
 		}
 	}
 
