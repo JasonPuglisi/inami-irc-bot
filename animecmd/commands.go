@@ -10,6 +10,8 @@ import (
 	"github.com/jasonpuglisi/ircutil"
 )
 
+const progressKey = "anime/progress"
+
 // Init adds animecmd's functions to the command map.
 func Init(cmdMap ircutil.CmdMap) {
 	ircutil.AddCommand(cmdMap, "inami/animecmd.Countdown", Countdown)
@@ -60,7 +62,7 @@ func Alias(client *ircutil.Client, command *ircutil.Command,
 	// Set alias, intialize episode progress, and send response with
 	// confirmation.
 	configutil.SetValue(client, keys, id)
-	keys[2] = "anime/progress"
+	keys[2] = progressKey
 	configutil.SetValue(client, keys, "0")
 	ircutil.SendResponse(client, message.Source, message.Target,
 		fmt.Sprintf("Aliased %s to %s", id, alias))
@@ -119,7 +121,7 @@ func Watch(client *ircutil.Client, command *ircutil.Command,
 	}
 
 	// Get episode number from alias in persistent data.
-	keys[2] = "anime/progress"
+	keys[2] = progressKey
 	numStr, _ := configutil.GetValue(client, keys)
 	num, _ := strconv.Atoi(numStr)
 	num++
@@ -156,7 +158,7 @@ func Watch(client *ircutil.Client, command *ircutil.Command,
 		e := &episodes[i]
 		if e.Attributes.Number == num {
 			episode = e
-      break
+			break
 		}
 	}
 
@@ -207,7 +209,7 @@ func Progress(client *ircutil.Client, command *ircutil.Command,
 	}
 
 	// Set episode number in persistent data and send response with confirmation.
-	keys[2] = "anime/progress"
+	keys[2] = progressKey
 	plural := "s"
 	if num == 1 {
 		plural = ""
@@ -241,7 +243,7 @@ func Next(client *ircutil.Client, command *ircutil.Command,
 	}
 
 	// Get episode number from alias in persistent data.
-	keys[2] = "anime/progress"
+	keys[2] = progressKey
 	strNum, _ := configutil.GetValue(client, keys)
 	num, _ := strconv.Atoi(strNum)
 	num++
@@ -278,7 +280,7 @@ func Next(client *ircutil.Client, command *ircutil.Command,
 		e := &episodes[i]
 		if e.Attributes.Number == num {
 			episode = e
-      break
+			break
 		}
 	}
 
