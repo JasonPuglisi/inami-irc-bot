@@ -94,7 +94,7 @@ func episodes(id string) ([]result, error) {
 
 	// Connect to memcached and attempt to return episodes from cache.
 	mc := memcache.New("127.0.0.1:11211")
-	it, err := mc.Get("episodes_" + id)
+	it, err := mc.Get(fmt.Sprintf("episodes_%s", id))
 	if err == nil {
 		err = json.Unmarshal(it.Value, &results)
 		if err == nil {
@@ -108,16 +108,16 @@ func episodes(id string) ([]result, error) {
 		url.QueryEscape(id))
 	for more {
 		// Escape query string and send it to Kitsu API.
-		resp, err := http.Get(link)
-		if err != nil {
-			return nil, err
+		resp, err2 := http.Get(link)
+		if err2 != nil {
+			return nil, err2
 		}
 		defer resp.Body.Close()
 
 		// Read data body into json string.
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
+		body, err2 := ioutil.ReadAll(resp.Body)
+		if err2 != nil {
+			return nil, err2
 		}
 
 		// Parse json string into container struct.
@@ -134,10 +134,11 @@ func episodes(id string) ([]result, error) {
 		}
 	}
 
-	// Send episodes to cache.
+	// Send episodes to cache with expiry of 12 hours.
 	episodes, err := json.Marshal(results)
 	if err == nil {
-		mc.Set(&memcache.Item{Key: "episodes_" + id, Value: episodes})
+		mc.Set(&memcache.Item{Key: fmt.Sprintf("episodes_%s", id), Value: episodes})
+		mc.Touch(fmt.Sprintf("episodes_%s", id), 43200)
 	}
 
 	// Return slice of episodes.

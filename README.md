@@ -9,6 +9,10 @@ out the readme for more information.
 
 - [ircutil](https://github.com/JasonPuglisi/ircutil)
 
+## Optional Dependencies
+
+- [gomemcache](github.com/bradfitz/gomemcache/memcache)
+
 ## Usage
 
 Run `go get github.com/jasonpuglisi/inami-irc-bot` to grab the program. Then
@@ -21,6 +25,11 @@ format. The `servers` and `users` sections both contain `id` fields that should
 be referenced in the `clients` section (these are your IRC server connections).
 Most options, such as passwords, can be omitted or left blank (they are in the
 example for reference).
+
+Some functions may benefit from having `gomemcache` installed, but they will
+work without it. To use this dependency, you must have
+`[memcached](https://memcached.org/)` installed. Installing this dependency is
+recommended to reduce API calls and improve command response time.
 
 ## Overview
 
