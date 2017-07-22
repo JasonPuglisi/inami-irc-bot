@@ -34,7 +34,7 @@ func main() {
 	data, err := configutil.GetData(*dataPtr)
 	if err != nil {
 		fmt.Printf("Error opening %s, %s.\n%s\n",
-			*configPtr, "make sure the file exists and is correctly formatted", err)
+			*dataPtr, "make sure the file exists and is correctly formatted", err)
 		return
 	}
 
