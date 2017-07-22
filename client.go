@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
+	"os"
 	"strings"
 	"time"
 
@@ -31,6 +33,17 @@ func main() {
 		return
 	}
 
+	// Create data file if it doesn't already exist.
+	_, err = os.Stat(*dataPtr)
+	if os.IsNotExist(err) {
+		err = ioutil.WriteFile(*dataPtr, []byte("{}"), 0644)
+		if err != nil {
+			fmt.Printf("Error creating %s.\n%s\n", *dataPtr, err)
+			return
+		}
+	}
+
+	// Get data from filename.
 	data, err := configutil.GetData(*dataPtr)
 	if err != nil {
 		fmt.Printf("Error opening %s, %s.\n%s\n",
