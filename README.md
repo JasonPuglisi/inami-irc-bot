@@ -11,7 +11,7 @@ out the readme for more information.
 
 ## Optional Dependencies
 
-- [gomemcache](github.com/bradfitz/gomemcache/memcache)
+- [gomemcache](https://github.com/bradfitz/gomemcache)
 
 ## Usage
 
@@ -28,7 +28,7 @@ example for reference).
 
 Some functions may benefit from having `gomemcache` installed, but they will
 work without it. To use this dependency, you must have
-`[memcached](https://memcached.org/)` installed. Installing this dependency is
+[`memcached`](https://memcached.org/) installed. Installing this dependency is
 recommended to reduce API calls and improve command response time.
 
 ## Overview
