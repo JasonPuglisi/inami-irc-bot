@@ -96,6 +96,16 @@
       }
     },
     {
+      "triggers": ["set"],
+      "function": "inami/utilcmd.SetProfileItem",
+      "arguments": "<name> <value...>"
+    },
+    {
+      "triggers": ["get"],
+      "function": "inami/utilcmd.GetProfileItem",
+      "arguments": "<name>"
+    },
+    {
       "triggers": ["8ball", "eightball", "ask"],
       "function": "inami/funcmd.EightBall",
       "arguments": "[question...]"

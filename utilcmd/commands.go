@@ -15,6 +15,8 @@ func Init(cmdMap ircutil.CmdMap) {
 	ircutil.AddCommand(cmdMap, "inami/utilcmd.Say", Say)
 	ircutil.AddCommand(cmdMap, "inami/utilcmd.Notify", Notify)
 	ircutil.AddCommand(cmdMap, "inami/utilcmd.Do", Do)
+	ircutil.AddCommand(cmdMap, "inami/utilcmd.GetProfileItem", GetProfileItem)
+	ircutil.AddCommand(cmdMap, "inami/utilcmd.SetProfileItem", SetProfileItem)
 }
 
 // Nick updates a nickname. Function key: inami/utilcmd.Nick
