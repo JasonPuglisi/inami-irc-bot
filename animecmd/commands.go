@@ -164,7 +164,8 @@ func Watch(client *ircutil.Client, command *ircutil.Command,
 
 	// Clear episode title if it doesn't exist.
 	episodeTitle := ""
-	if episode != nil && len(episode.Attributes.Title) > 0 {
+	if episode != nil && len(episode.Attributes.Title) > 0 &&
+		episode.Attributes.Title != fmt.Sprintf("Episode %d", num) {
 		episodeTitle = fmt.Sprintf(" \"%s\"", episode.Attributes.Title)
 	}
 
@@ -286,7 +287,8 @@ func Next(client *ircutil.Client, command *ircutil.Command,
 
 	// Clear episode title if it doesn't exist.
 	episodeTitle := ""
-	if episode != nil && len(episode.Attributes.Title) > 0 {
+	if episode != nil && len(episode.Attributes.Title) > 0 &&
+		episode.Attributes.Title != fmt.Sprintf("Episode %d", num) {
 		episodeTitle = fmt.Sprintf(" \"%s\"", episode.Attributes.Title)
 	}
 
