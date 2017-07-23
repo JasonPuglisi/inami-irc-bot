@@ -19,8 +19,7 @@ func SetProfileItem(client *ircutil.Client, command *ircutil.Command,
 	// Set profile item in persistent data and send response with confirmation.
 	configutil.SetValue(client, keys, value)
 	ircutil.SendResponse(client, message.Source, message.Target,
-		fmt.Sprintf("%s's %s is now %s", ircutil.GetNick(message.Source), name,
-			value))
+		fmt.Sprintf("Your %s is now %s", name, value))
 }
 
 // GetProfileItem outputs a user's profile item saved to persistent data.
@@ -47,5 +46,5 @@ func GetProfileItem(client *ircutil.Client, command *ircutil.Command,
 
 	// Send response with profile item.
 	ircutil.SendResponse(client, message.Source, message.Target,
-		fmt.Sprintf("%s's %s is %s", ircutil.GetNick(message.Source), name, value))
+		fmt.Sprintf("Your %s is %s", name, value))
 }
